@@ -10,21 +10,50 @@ retrofit refinement types to python.
 
 Define predicates as functions which return boolean values
 
-![](./img/1_preds.png)
+```python
+def N(i: int) -> bool:
+  return i > 0
+  
+def CapitaliseName(s: str) -> bool:
+  return len(s) > 0 and s[0].isupper()
+```
 
 Define a function with type hints pointing to the predicate functions
 
-![](./img/2_func.png)
+```python
+def emp_greeting(dept: str, name: CapitaliseName, age: N) -> str:
+  return f"{name} ({dept}), {age} yo"
+  
+emp_greeting("cs", "vikrant", -21) # This works, it shouldn't
+```
 
 The function works without validation of the types. Let's refine
-it using the refine function (or decorator)
+it using the `refine` function
 
-![](./img/3_typeerrors.png)
+```python
+@refine
+def emp_greeting(dept: str, name: CapitaliseName, age: N) -> str:
+  return f"{name} ({dept}), {age} yo"
+  
+# or
+
+refined_emp_greeting = refine(emp_greeting)
+```
+
 Now this ain't gonna work unless all the predicates are satisfied.
+
+```python
+emp_greeting("cs", "vikrant", -21) # TypeError on 2nd argument
+emp_greeting("cs", "Vikrant", -21) # TypeError on 3rd argument
+```
+
+Notice how we ignore built-in callables like `str`.
 
 Let's pass satisfactory arguments to the function.
 
-![](./img/4_correct.png)
+```python
+emp_greeting("cs", "Vikrant", 21) # This works
+```
 
 ## Issues
 
