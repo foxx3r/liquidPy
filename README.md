@@ -1,4 +1,4 @@
-# Refinement types and Dependent types to python
+# Refinement types and Dependent types in Python
 
 This repository consists of my experiments on adding
 refinement types and predicate types to python.
