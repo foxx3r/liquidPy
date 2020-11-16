@@ -4,7 +4,7 @@ PEP 3107: "this PEP makes no attempt to introduce any kind of standard semantics
 even for the built-in types. This work will be left to third-party libraries."
 
 I make use of the open interpretation of annotations to
-develop refinement types and dependent types to Python.
+develop refinement types and dependent types for Python.
 
 ## Refinement of function parameters 
 
