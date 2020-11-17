@@ -24,17 +24,17 @@ def CapitalisedName(s: str) -> bool:
 # Notice the use of function identifiers in type hints
 
 @refine
-def emp_greeting(dept: str, name: CapitalisedName, age: N) -> str:
+def greet(dept: str, name: CapitalisedName, age: N) -> str:
   return f"{name} ({dept}), {age} yo"
   
 # or just use the decorator as a function
-refined_emp_greeting = refine(emp_greeting)
+greet = refine(greet)
 
 # ----- Call it like any other function
 
-emp_greeting("cs", "vikrant", -21) # TypeError on 2nd argument
-emp_greeting("cs", "Vikrant", -21) # TypeError on 3rd argument
-emp_greeting("cs", "Vikrant", 21)  # This works
+greet("cs", "vikrant", -21) # TypeError on 2nd argument
+greet("cs", "Vikrant", -21) # TypeError on 3rd argument
+greet("cs", "Vikrant", 21)  # This works
 ```
 
 ## Refining local variables
@@ -59,7 +59,7 @@ to
 varname = annotation(expr)
 ```
 
-by rewriting the function using metaprogramming.
+by inspecting the function to be refined and modifying the AST.
 
 
 ```python
@@ -69,13 +69,14 @@ def CapitalisedName(s: str) -> bool:
   return len(s) > 0 and s[0].isupper()
 
 @refine
-def greeting() -> CapitalisedName:
-    name : CapitalisedName = "vikrant"
+def fname() -> CapitalisedName:
+    name : CapitalisedName = input()
     return name
 ```
 
 ## Issues
 
 - Predicate functions should be without side effects (my opinion)
+- Refinement of global variables
 - Currently thinking of how to implement dependent types
 
