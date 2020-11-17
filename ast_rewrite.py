@@ -24,15 +24,14 @@ def __recur_rewrite_body(body: list):
             continue
         __rewrite_AnnAssign(stmt)
 
-
 def get_refined_function(f: types.FunctionType):
     src = inspect.getsource(f)
-    mod = ast.parse(src)
-    node = mod.body[0]
-    node.name = "z"
+    module = ast.parse(src)
+    node = module.body[0]
+    node.name = "refined_function"
     __recur_rewrite_body(node.body)
-    cobj = compile(mod, '<string>', 'exec')
+    cobj = compile(module, '<string>', 'exec')
     scope = dict()
     exec(cobj, f.__globals__, scope)
-    return scope['z']
+    return scope['refined_function']
 

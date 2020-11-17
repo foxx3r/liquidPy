@@ -1,6 +1,6 @@
+import ast_rewrite
 import inspect
 import types
-import ast_rewrite
 
 def refine(f: types.FunctionType):
     ''' Refines a function's body and signature '''
