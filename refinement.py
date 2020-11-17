@@ -1,6 +1,7 @@
 import ast_rewrite
 import inspect
 import types
+from functools import wraps
 
 def __refine_signature(f: types.FunctionType):
     ''' Build a wrapped function for refining function parameters and return type '''
@@ -57,7 +58,8 @@ def refine(f: types.FunctionType):
     assert type(f) == types.FunctionType, "Only functions can be refined"
 
     # Rewrite the function body's AST to call annotations 
-    rf = ast_rewrite.get_refined_function(f)
+    src = inspect.getsource(f)
+    rf = ast_rewrite.get_refined_function(f, src)
 
     # Refine the signature of the function
     wrf = __refine_signature(rf)

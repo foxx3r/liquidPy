@@ -1,4 +1,4 @@
-# Powerful Type Systems for Python
+# Refinement Types & Dependent Types for Python
 
 PEP 3107: "this PEP makes no attempt to introduce any kind of standard semantics,
 even for the built-in types. This work will be left to third-party libraries."
@@ -27,13 +27,11 @@ def CapitalisedName(s: str) -> bool:
 x = N(4)
 
 # ----- Add type hints 
-
 # Notice the use of function identifiers in type hints
+
+@refine
 def greet(dept: str, name: CapitalisedName, age: N) -> str:
   return f"{name} ({dept}), {age} yo"
-
-# ----- Add refinement
-greet = refine(greet)
 
 # ----- Call it like any other function
 
@@ -56,14 +54,9 @@ The value of having the annotations available locally is just
 So, I rewrite all
 ```
 varname : annotation = expr
-```
-
-to
-
-```
+# to
 varname = annotation(expr)
 ```
-
 by inspecting the function to be refined and modifying the AST.
 
 
@@ -74,10 +67,13 @@ from refinement import refine, reftype
 def CapitalisedName(s: str) -> bool:
   return len(s) > 0 and s[0].isupper()
 
-def fname() -> CapitalisedName:
+@refine
+def fname() -> str:
     name : CapitalisedName = input()
     return name
 ```
+
+## Dependent Types
 
 Types can also depend on some input, 
 These use the familiar syntax of returning functions
@@ -86,19 +82,16 @@ These use the familiar syntax of returning functions
 from refinement import refine, reftype
 from math import log10
 
+@refine
 def LenLimInteger(lim: N):
     @reftype
     def LenLimit(i: N) -> bool:
         return int(log10(i)) == lim
     return LenLimit
 
-# For good measures, add refinement to this function as well
-LenLimInteger = refine(LenLimInteger)
-
-# Let's make a type for integers of length 2
 AgeType = LenLimInteger(2)
 
-# And we can use this as
+@refine
 def get_age() -> N:
     age: AgeType = int(input("Your age = "))
     return age
@@ -108,7 +101,6 @@ def get_age() -> N:
 ## Issues
 
 - Predicate functions should be without side effects (my opinion)
-- @refine decorator isn't working (OS error, can't find source code)
+- SMT solving/ verification
 - Refinement of global variables
-- Currently thinking of how to implement dependent types
 

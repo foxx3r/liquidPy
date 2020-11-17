@@ -1,9 +1,17 @@
 import ast
-import inspect
 import types
 
 class FunctionRefiner(ast.NodeTransformer):
+    def __init__(self, curr):
+        self.curr = curr
+
     def visit_FunctionDef(self, node: ast.FunctionDef):
+        if node.name == self.curr.__name__:
+            node.decorator_list = [
+                    d for d in node.decorator_list
+                    if d.id != 'refine'
+                ]
+
         for stmt in node.body:
             self.visit(stmt)
         return node
@@ -30,10 +38,8 @@ class FunctionRefiner(ast.NodeTransformer):
         node.value = call
         return node
 
-def get_refined_function(f: types.FunctionType):
-    refiner = FunctionRefiner()
-
-    src = inspect.getsource(f)
+def get_refined_function(f: types.FunctionType, src: str):
+    refiner = FunctionRefiner(curr=f)
     node = ast.parse(src)
     node = refiner.visit(node)
 
