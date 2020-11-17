@@ -5,6 +5,8 @@ even for the built-in types. This work will be left to third-party libraries."
 
 I make use of the open interpretation of annotations to
 develop refinement types and dependent types for Python.
+All refinement happens in runtime without any static
+type checking with the help of metaprogramming.
 
 ## Refinement of function parameters 
 
