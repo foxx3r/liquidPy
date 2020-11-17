@@ -1,10 +1,11 @@
 import ast_rewrite
 import inspect
 import types
+from functools import wraps
 
-def refine(f: types.FunctionType):
-    ''' Refines a function's body and signature '''
-    assert type(f) == types.FunctionType, "refine() can only accept functions"
+def __refine_signature(f: types.FunctionType):
+    ''' Build a wrapped function for refining function parameters and return type '''
+    assert type(f) == types.FunctionType, "Only functions can be refined"
 
     # Find all predicate functions in signature annotations
     tas = f.__annotations__
@@ -13,11 +14,6 @@ def refine(f: types.FunctionType):
         if isinstance(v, types.FunctionType)
     } 
 
-    # Rewrite the function's AST to call annotations like functions
-    rf = ast_rewrite.get_refined_function(f)
-    print(rf)
-
-    # Build a wrapped function for replacement
     def wrapped(*args, **kwargs):
         # Get dictionary of arguments
         callargs = inspect.getcallargs(f, *args, **kwargs)
@@ -26,37 +22,47 @@ def refine(f: types.FunctionType):
         for k, v in callargs.items():
             if k not in predicates:
                 continue
-            P = predicates[k]
-            if not P(v):
-                raise TypeError(f"Argument {k} of value {v} does not satify refinement {P.__name__}")
+            predicates[k](v)
 
         # Run the refined function
-        retval = rf(*args, **kwargs)
+        retval = f(*args, **kwargs)
 
         # Check predicate for return value
         if 'return' in predicates:
-            P = predicates['return']
-            if not P(retval):
-                raise TypeError(f"Return value {retval} does not satify refinement {P.__name__}")
+            predicates['return'](retval)
         return retval
 
     return wrapped
 
-########
-# TEST #
-########
+def reftype(f: types.FunctionType):
+    assert type(f) == types.FunctionType, "Predicate should be a function"
+    assert len(f.__annotations__) == 2, "Predicate should type hint the input parameter, the output should be bool" 
+    assert f.__annotations__['return'] == bool, "Predicate should return a boolean value"
 
-def N(i: int) -> bool:
-    return i > 0
+    # Refine the signature of the function
+    wf = __refine_signature(f)
 
-def testf(a: N):
-    x : int = 2.4
-    y : N = -10
-    print("X is ", x)
-    print("Y is ", y)
-    return a % x == 0
+    # TODO: Verification of program in this function
+    # Should be solved in an SMT solver
 
-r = refine(testf)
+    # Add error throwing
+    def wrf(v):
+        if not wf(v):
+            raise TypeError(f"Value {v} does not satify refinement {f.__name__}")
+        return v
 
-r(10)
-r(-10)
+    return wrf
+
+@wraps
+def refine(f: types.FunctionType):
+    ''' Refines a function's body and signature '''
+    assert type(f) == types.FunctionType, "Only functions can be refined"
+
+    # Rewrite the function body's AST to call annotations 
+    rf = ast_rewrite.get_refined_function(f)
+
+    # Refine the signature of the function
+    wrf = __refine_signature(rf)
+
+    return wrf
+

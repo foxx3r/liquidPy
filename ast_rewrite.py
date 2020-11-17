@@ -3,6 +3,7 @@ import inspect
 import types
 
 def __rewrite_AnnAssign(node: ast.AnnAssign):
+    print("Rewrote")
     ann = node.annotation
     val = node.value
 
