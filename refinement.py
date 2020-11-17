@@ -53,7 +53,6 @@ def reftype(f: types.FunctionType):
 
     return wrf
 
-@wraps
 def refine(f: types.FunctionType):
     ''' Refines a function's body and signature '''
     assert type(f) == types.FunctionType, "Only functions can be refined"
