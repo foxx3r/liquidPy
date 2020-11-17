@@ -1,4 +1,6 @@
-import ast, inspect
+import ast
+import inspect
+import types
 
 def __rewrite_AnnAssign(node: ast.AnnAssign):
     ann = node.annotation
@@ -16,16 +18,21 @@ def __rewrite_AnnAssign(node: ast.AnnAssign):
         )
     node.value = call
 
-def get_refined_func(f: callable):
-    src = inspect.getsource(f)
-    mod = ast.parse(src)
-    node = mod.body[0]
-
-    for stmt in node.body:
+def __recur_rewrite_body(body: list):
+    for stmt in body:
         if type(stmt) != ast.AnnAssign:
             continue
         __rewrite_AnnAssign(stmt)
 
+
+def get_refined_function(f: types.FunctionType):
+    src = inspect.getsource(f)
+    mod = ast.parse(src)
+    node = mod.body[0]
+    node.name = "z"
+    __recur_rewrite_body(node.body)
     cobj = compile(mod, '<string>', 'exec')
-    return cobj
+    scope = dict()
+    exec(cobj, f.__globals__, scope)
+    return scope['z']
 

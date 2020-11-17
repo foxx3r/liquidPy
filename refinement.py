@@ -5,12 +5,6 @@ import ast_rewrite
 def refine(f: types.FunctionType):
     ''' Refines a function's body and signature '''
     assert type(f) == types.FunctionType, "refine() can only accept functions"
-    
-    # Rewrite the function's AST to call annotations like functions
-    rf_cobj = ast_rewrite.get_refined_func(f)
-    exec(rf_cobj)
-    rf_name = rf_cobj.co_names[0]
-    rf = locals()[rf_name] 
 
     # Find all predicate functions in signature annotations
     tas = f.__annotations__
@@ -19,10 +13,15 @@ def refine(f: types.FunctionType):
         if isinstance(v, types.FunctionType)
     } 
 
+    # Rewrite the function's AST to call annotations like functions
+    rf = ast_rewrite.get_refined_function(f)
+    print(rf)
+
     # Build a wrapped function for replacement
     def wrapped(*args, **kwargs):
         # Get dictionary of arguments
-        callargs = inspect.getcallargs(rf, *args, **kwargs)
+        callargs = inspect.getcallargs(f, *args, **kwargs)
+
         # Check predicate for each argument
         for k, v in callargs.items():
             if k not in predicates:
@@ -30,8 +29,10 @@ def refine(f: types.FunctionType):
             P = predicates[k]
             if not P(v):
                 raise TypeError(f"Argument {k} of value {v} does not satify refinement {P.__name__}")
+
         # Run the refined function
         retval = rf(*args, **kwargs)
+
         # Check predicate for return value
         if 'return' in predicates:
             P = predicates['return']
@@ -41,3 +42,21 @@ def refine(f: types.FunctionType):
 
     return wrapped
 
+########
+# TEST #
+########
+
+def N(i: int) -> bool:
+    return i > 0
+
+def testf(a: N):
+    x : int = 2.4
+    y : N = -10
+    print("X is ", x)
+    print("Y is ", y)
+    return a % x == 0
+
+r = refine(testf)
+
+r(10)
+r(-10)
