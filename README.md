@@ -9,25 +9,28 @@ develop refinement types and dependent types for Python.
 ## Refinement of function parameters 
 
 ```python
-
-from refinement import refine
+from refinement import refine, reftype
 
 # ----- Define predicates 
 
+@reftype
 def N(i: int) -> bool:
   return i > 0
   
+@reftype
 def CapitalisedName(s: str) -> bool:
   return len(s) > 0 and s[0].isupper()
 
-# ----- Add type hints and refinement decorator
-# Notice the use of function identifiers in type hints
+# These can be used like normal type conversions
+x = N(4)
 
-@refine
+# ----- Add type hints 
+
+# Notice the use of function identifiers in type hints
 def greet(dept: str, name: CapitalisedName, age: N) -> str:
   return f"{name} ({dept}), {age} yo"
-  
-# or just use the decorator as a function
+
+# ----- Add refinement
 greet = refine(greet)
 
 # ----- Call it like any other function
@@ -63,20 +66,48 @@ by inspecting the function to be refined and modifying the AST.
 
 
 ```python
-from refinement import refine
+from refinement import refine, reftype
 
+@reftype
 def CapitalisedName(s: str) -> bool:
   return len(s) > 0 and s[0].isupper()
 
-@refine
 def fname() -> CapitalisedName:
     name : CapitalisedName = input()
     return name
 ```
 
+## Higher-order refinement types
+
+They use the familiar syntax of returning functions
+
+```python
+from refinement import refine, reftype
+from math import log10
+
+def LenLimInteger(lim: N):
+    @reftype
+    def LenLimit(i: N) -> bool:
+        return int(log10(i)) == lim
+    return LenLimit
+
+# For good measures, add refinement to this function as well
+LenLimInteger = refine(LenLimInteger)
+
+# Let's make a type for integers of length 2
+AgeType = LenLimInteger(2)
+
+# And we can use this as
+def get_age() -> N:
+    age: AgeType = int(input("Your age = "))
+    return age
+
+```
+
 ## Issues
 
 - Predicate functions should be without side effects (my opinion)
+- @refine decorator isn't working (OS error, can't find source code)
 - Refinement of global variables
 - Currently thinking of how to implement dependent types
 

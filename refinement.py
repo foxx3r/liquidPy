@@ -1,7 +1,6 @@
 import ast_rewrite
 import inspect
 import types
-from functools import wraps
 
 def __refine_signature(f: types.FunctionType):
     ''' Build a wrapped function for refining function parameters and return type '''

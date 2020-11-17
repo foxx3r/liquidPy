@@ -14,7 +14,6 @@ class FunctionRefiner(ast.NodeTransformer):
         return node
 
     def visit_AnnAssign(self, node: ast.AnnAssign):
-        print("Transforming")
         ann = node.annotation
         val = node.value
 
