@@ -79,9 +79,8 @@ def fname() -> CapitalisedName:
     return name
 ```
 
-## Higher-order refinement types
-
-They use the familiar syntax of returning functions
+Types can also depend on some input, 
+These use the familiar syntax of returning functions
 
 ```python
 from refinement import refine, reftype
