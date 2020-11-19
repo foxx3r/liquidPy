@@ -92,8 +92,8 @@ SiblingsType = MinLenList(2)
 
 @refine
 def get_siblings() -> list:
-    in = input("Enter names separated by space: ")
-    sbls : SiblingsType = in.split()
+    l = input("Enter names separated by space: ")
+    sbls : SiblingsType = l.split()
     return sbls
     
 ```
