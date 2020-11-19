@@ -23,8 +23,8 @@ def N(i: int) -> bool:
 def CapitalisedName(s: str) -> bool:
   return len(s) > 0 and s[0].isupper()
 
-# These can be used like normal type conversions
-x = N(4)
+x = N(4) # type(x) == int not N
+y = CapitalisedName('vikrant') # TypeError
 
 # ----- Add type hints 
 # Notice the use of function identifiers in type hints
@@ -80,22 +80,22 @@ These use the familiar syntax of returning functions
 
 ```python
 from refinement import refine, reftype
-from math import log10
 
 @refine
-def LenLimInteger(lim: N):
+def MinLenList(lim: N):
     @reftype
-    def LenLimit(i: N) -> bool:
-        return int(log10(i)) == lim
+    def LenLimit(l: list) -> bool:
+        return len(l) >= lim
     return LenLimit
-
-AgeType = LenLimInteger(2)
+    
+SiblingsType = MinLenList(2)
 
 @refine
-def get_age() -> N:
-    age: AgeType = int(input("Your age = "))
-    return age
-
+def get_siblings() -> list:
+    in = input("Enter names separated by space: ")
+    sbls : SiblingsType = in.split()
+    return sbls
+    
 ```
 
 ## Issues
