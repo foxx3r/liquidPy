@@ -96,6 +96,9 @@ def get_siblings() -> list:
     sbls : SiblingsType = l.split()
     return sbls
     
+@refine
+def print_siblings(sbls: SiblingsType):
+    print(sbls[0], " is the sibling of ", ','.join(sbls[1:]))
 ```
 
 ## Issues
